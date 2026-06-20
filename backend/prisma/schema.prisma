@@ -1,0 +1,197 @@
+// Carbon Footprint Awareness Platform - Database Schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String    @id @default(uuid())
+  email           String    @unique
+  username        String    @unique
+  passwordHash    String    @map("password_hash")
+  firstName       String?   @map("first_name")
+  lastName        String?   @map("last_name")
+  country         String?
+  avatarUrl       String?   @map("avatar_url")
+  isVerified      Boolean   @default(false) @map("is_verified")
+  isActive        Boolean   @default(true) @map("is_active")
+  createdAt       DateTime  @default(now()) @map("created_at")
+  updatedAt       DateTime  @updatedAt @map("updated_at")
+  lastLoginAt     DateTime? @map("last_login_at")
+
+  // Relations
+  activities      CarbonActivity[]
+  profile         UserProfile?
+  refreshTokens   RefreshToken[]
+  achievements    UserAchievement[]
+  challenges      UserChallenge[]
+  auditLogs       AuditLog[]
+
+  @@map("users")
+  @@index([email])
+  @@index([username])
+}
+
+model UserProfile {
+  id                    String  @id @default(uuid())
+  userId                String  @unique @map("user_id")
+  dietType              String  @default("omnivore") @map("diet_type") // omnivore, vegetarian, vegan
+  vehicleType           String? @map("vehicle_type")                   // none, electric, hybrid, petrol, diesel
+  homeSize              String? @map("home_size")                      // small, medium, large
+  householdSize         Int     @default(1) @map("household_size")
+  renewableEnergyPct    Float   @default(0) @map("renewable_energy_pct")
+  monthlyFlights        Int     @default(0) @map("monthly_flights")
+  weeklyCarKm           Float   @default(0) @map("weekly_car_km")
+  monthlyElectricityKwh Float   @default(0) @map("monthly_electricity_kwh")
+  monthlyGasM3          Float   @default(0) @map("monthly_gas_m3")
+  baselineFootprint     Float?  @map("baseline_footprint") // kg CO2e/year
+  targetReduction       Float   @default(20) @map("target_reduction") // percentage
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("user_profiles")
+}
+
+model CarbonActivity {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  category    String                            // transport, energy, food, shopping, waste
+  subcategory String
+  description String?
+  quantity    Float
+  unit        String
+  co2Kg       Float    @map("co2_kg")           // calculated CO2 in kg
+  date        DateTime @default(now())
+  createdAt   DateTime @default(now()) @map("created_at")
+  metadata    Json?                             // extra data (e.g., distance, duration)
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("carbon_activities")
+  @@index([userId, date])
+  @@index([userId, category])
+}
+
+model MonthlyFootprint {
+  id            String   @id @default(uuid())
+  userId        String   @map("user_id")
+  year          Int
+  month         Int      // 1-12
+  totalCo2Kg    Float    @map("total_co2_kg")
+  transportCo2  Float    @default(0) @map("transport_co2")
+  energyCo2     Float    @default(0) @map("energy_co2")
+  foodCo2       Float    @default(0) @map("food_co2")
+  shoppingCo2   Float    @default(0) @map("shopping_co2")
+  wasteCo2      Float    @default(0) @map("waste_co2")
+  treeEquivalent Float   @default(0) @map("tree_equivalent")
+  calculatedAt  DateTime @default(now()) @map("calculated_at")
+
+  @@unique([userId, year, month])
+  @@map("monthly_footprints")
+  @@index([userId, year, month])
+}
+
+model RefreshToken {
+  id          String   @id @default(uuid())
+  userId      String   @map("user_id")
+  token       String   @unique
+  fingerprint String?  // browser fingerprint hash
+  ipAddress   String?  @map("ip_address")
+  userAgent   String?  @map("user_agent")
+  expiresAt   DateTime @map("expires_at")
+  revokedAt   DateTime? @map("revoked_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+  @@index([userId])
+  @@index([token])
+}
+
+model Achievement {
+  id          String  @id @default(uuid())
+  name        String  @unique
+  description String
+  icon        String
+  category    String  // reduction, streak, milestone, social
+  condition   Json    // trigger condition object
+  points      Int     @default(10)
+  isActive    Boolean @default(true) @map("is_active")
+
+  userAchievements UserAchievement[]
+
+  @@map("achievements")
+}
+
+model UserAchievement {
+  id            String   @id @default(uuid())
+  userId        String   @map("user_id")
+  achievementId String   @map("achievement_id")
+  earnedAt      DateTime @default(now()) @map("earned_at")
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement Achievement @relation(fields: [achievementId], references: [id])
+
+  @@unique([userId, achievementId])
+  @@map("user_achievements")
+}
+
+model Challenge {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  category    String
+  difficulty  String   @default("medium") // easy, medium, hard
+  durationDays Int     @map("duration_days")
+  co2Savings  Float   @map("co2_savings") // estimated kg CO2 saved
+  points      Int     @default(50)
+  tips        Json    // array of tips
+  isActive    Boolean @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  userChallenges UserChallenge[]
+
+  @@map("challenges")
+}
+
+model UserChallenge {
+  id          String    @id @default(uuid())
+  userId      String    @map("user_id")
+  challengeId String    @map("challenge_id")
+  status      String    @default("active") // active, completed, abandoned
+  startedAt   DateTime  @default(now()) @map("started_at")
+  completedAt DateTime? @map("completed_at")
+  progressPct Float     @default(0) @map("progress_pct")
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  challenge Challenge @relation(fields: [challengeId], references: [id])
+
+  @@unique([userId, challengeId])
+  @@map("user_challenges")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  userId     String?  @map("user_id")
+  action     String
+  resource   String
+  ipAddress  String?  @map("ip_address")
+  userAgent  String?  @map("user_agent")
+  statusCode Int?     @map("status_code")
+  metadata   Json?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("audit_logs")
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+}
