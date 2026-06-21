@@ -25,7 +25,7 @@ A pre-populated demo account is available to explore all features without signin
 | Field | Value |
 |---|---|
 | **Email** | `demo@ecotrack.app` |
-| **Password** | `Demo@12345` |
+| **Password** | `Demo@1234` |
 
 > The demo account has sample activities logged across all 5 categories so the dashboard, charts, streak, and AI insights are all populated and ready to explore.
 
