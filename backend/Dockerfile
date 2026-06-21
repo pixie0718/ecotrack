@@ -11,6 +11,7 @@ RUN npm ci --only=production && npm cache clean --force
 
 # Build stage
 FROM base AS builder
+ENV NODE_ENV=development
 COPY package*.json ./
 RUN npm ci
 COPY . .
