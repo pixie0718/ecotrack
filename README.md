@@ -3,12 +3,12 @@
 > **Google Hack 2 Skill — Prompt Wars Challenge 3**
 > Built with AI tools · Powered by Google Gemini
 
-[![CI Pipeline](https://img.shields.io/github/actions/workflow/status/your-username/h2s/ci.yml?label=CI&logo=github)](/.github/workflows/ci.yml)
-[![Security](https://img.shields.io/badge/Security-Hardened-green?logo=shield)](/.github/workflows/security.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 [![Node 20+](https://img.shields.io/badge/Node.js-20+-success?logo=node.js)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue?logo=typescript)](https://typescriptlang.org)
-[![Docker](https://img.shields.io/badge/Docker-Compose-blue?logo=docker)](./docker-compose.yml)
+[![Gemini AI](https://img.shields.io/badge/Google_Gemini-1.5_Flash-blue?logo=google)](https://aistudio.google.com)
+[![Security](https://img.shields.io/badge/Security-10_Layers-green)](./backend/src/middleware/)
+[![Tests](https://img.shields.io/badge/Tests-30_passing-brightgreen)](./backend/tests/)
 
 ---
 
@@ -220,8 +220,8 @@ Tree offset: 1 tree absorbs ~21 kg CO₂/year
 ### 1. Clone & Configure
 
 ```bash
-git clone https://github.com/your-username/h2s.git
-cd h2s
+git clone https://github.com/pixie0718/ecotrack.git
+cd ecotrack
 
 # Backend config
 cp backend/.env.example backend/.env
@@ -339,11 +339,10 @@ BCRYPT_SALT_ROUNDS=12
 
 ### Deploy to Cloud
 
-The app is Docker-ready. Deploy with:
-- **Google Cloud Run** (recommended for Google hackathon)
-- **Railway**
-- **Fly.io**
-- **Any Docker host**
+| Layer | Platform | Notes |
+|---|---|---|
+| Frontend | **Vercel** | Auto-deploy from GitHub `main` branch |
+| Backend + DB | **Railway** | PostgreSQL + Node.js service |
 
 ---
 
@@ -406,7 +405,7 @@ MIT License — See [LICENSE](./LICENSE)
 
 **Google Hack 2 Skill — Prompt Wars** · Challenge 3: Carbon Footprint Awareness Platform
 
-*Built with AI assistance (Claude Code) · Deployed on Google Cloud*
+*Built with AI assistance (Claude Code) · Frontend on Vercel · Backend on Railway*
 
 ---
 
