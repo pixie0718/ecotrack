@@ -21,8 +21,8 @@ export const registerSchema = z.object({
       .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
       .regex(/[0-9]/, 'Password must contain at least one number')
       .regex(/[^A-Za-z0-9]/, 'Password must contain at least one special character'),
-    firstName: z.string().min(1).max(50).optional(),
-    lastName: z.string().min(1).max(50).optional(),
+    firstName: z.preprocess(v => (v === '' ? undefined : v), z.string().min(1).max(50).optional()),
+    lastName:  z.preprocess(v => (v === '' ? undefined : v), z.string().min(1).max(50).optional()),
   }),
 });
 

@@ -18,6 +18,17 @@
 | ⚙️ **Backend API** | https://ecotrack-production-b8c0.up.railway.app |
 | ❤️ **Health Check** | https://ecotrack-production-b8c0.up.railway.app/health |
 
+### 🔑 Demo Account
+
+A pre-populated demo account is available to explore all features without signing up:
+
+| Field | Value |
+|---|---|
+| **Email** | `demo@ecotrack.app` |
+| **Password** | `Demo@12345` |
+
+> The demo account has sample activities logged across all 5 categories so the dashboard, charts, streak, and AI insights are all populated and ready to explore.
+
 ---
 
 ## 🎯 Hackathon Submission Details
