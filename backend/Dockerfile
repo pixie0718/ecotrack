@@ -1,6 +1,6 @@
 # Multi-stage build for security and minimal image size
 FROM node:20-alpine AS base
-RUN apk add --no-cache dumb-init
+RUN apk add --no-cache dumb-init openssl
 WORKDIR /app
 ENV NODE_ENV=production
 
