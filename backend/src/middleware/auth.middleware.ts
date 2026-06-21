@@ -4,6 +4,10 @@ import { prisma } from '../config/database';
 import { AppError } from '../utils/AppError';
 import { logger } from '../utils/logger';
 
+/**
+ * Middleware that verifies the Bearer token, looks up the user, and attaches
+ * `req.user` for downstream handlers. Rejects with 401 on any failure.
+ */
 export async function authenticate(req: Request, _res: Response, next: NextFunction): Promise<void> {
   try {
     const authHeader = req.headers.authorization;
@@ -20,7 +24,6 @@ export async function authenticate(req: Request, _res: Response, next: NextFunct
 
     const payload = verifyAccessToken(token);
 
-    // Verify user still exists and is active
     const user = await prisma.user.findUnique({
       where: { id: payload.sub },
       select: { id: true, email: true, isActive: true },
@@ -34,7 +37,7 @@ export async function authenticate(req: Request, _res: Response, next: NextFunct
       throw new AppError('User account is deactivated', 403, true, 'ACCOUNT_DISABLED');
     }
 
-    (req as any).user = { id: user.id, email: user.email };
+    req.user = { id: user.id, email: user.email };
     next();
   } catch (error) {
     if (error instanceof AppError) {
@@ -49,7 +52,10 @@ export async function authenticate(req: Request, _res: Response, next: NextFunct
   }
 }
 
-// Optional authentication - does not fail if no token
+/**
+ * Optional authentication middleware — attaches `req.user` when a valid token
+ * is present but does NOT reject the request if the token is missing or invalid.
+ */
 export async function optionalAuthenticate(
   req: Request,
   _res: Response,
@@ -69,10 +75,10 @@ export async function optionalAuthenticate(
       select: { id: true, email: true, isActive: true },
     });
     if (user?.isActive) {
-      (req as any).user = { id: user.id, email: user.email };
+      req.user = { id: user.id, email: user.email };
     }
   } catch {
-    // Silently ignore auth errors for optional auth
+    // Silently ignore — optional auth never blocks the request
   }
   next();
 }

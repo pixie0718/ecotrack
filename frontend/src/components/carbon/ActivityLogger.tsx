@@ -87,14 +87,16 @@ export const ActivityLogger: React.FC = () => {
           <p className="block text-sm font-medium mb-2 text-carbon-700 dark:text-carbon-300">
             Category <span className="text-red-500">*</span>
           </p>
-          <div className="grid grid-cols-5 gap-1.5">
+          <div role="radiogroup" aria-label="Select emission category" className="grid grid-cols-5 gap-1.5">
             {CATEGORY_OPTIONS.map(({ value, label, Icon, activeColor, iconColor }) => {
               const isActive = selectedCategory === value;
               return (
                 <button
                   key={value}
                   type="button"
-                  title={label}
+                  role="radio"
+                  aria-checked={isActive}
+                  aria-label={label}
                   onClick={() => {
                     setValue('category', value, { shouldValidate: true });
                     setValue('subcategory', '');
@@ -108,6 +110,7 @@ export const ActivityLogger: React.FC = () => {
                   <Icon
                     className={`h-5 w-5 transition-colors ${isActive ? iconColor : 'text-carbon-400 dark:text-carbon-500'}`}
                     strokeWidth={1.5}
+                    aria-hidden="true"
                   />
                   <span className={`hidden sm:block text-xs font-medium leading-none transition-colors
                     ${isActive ? 'text-carbon-800 dark:text-carbon-100' : 'text-carbon-400 dark:text-carbon-500'}`}>

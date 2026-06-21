@@ -52,7 +52,7 @@ const AuthShowcase: React.FC = () => (
           <Leaf className="h-6 w-6 text-white" />
         </div>
         <div>
-          <h1 className="text-xl font-bold text-white tracking-tight group-hover:text-green-300 transition-colors">EcoTrack</h1>
+          <p className="text-xl font-bold text-white tracking-tight group-hover:text-green-300 transition-colors">EcoTrack</p>
           <p className="text-xs text-green-400/60">Carbon Footprint Platform</p>
         </div>
       </Link>

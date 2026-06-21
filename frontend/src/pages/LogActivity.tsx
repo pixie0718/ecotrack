@@ -1,6 +1,6 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Activity, Trash2, Car, Zap, Utensils, ShoppingBag, Recycle } from 'lucide-react';
+import { Activity, Trash2 } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { ActivityLogger } from '@/components/carbon/ActivityLogger';
@@ -9,22 +9,7 @@ import { carbonService } from '@/services/carbon.service';
 import { formatCO2, formatRelativeDate } from '@/utils/formatters';
 import { type CarbonCategory } from '@/types/carbon.types';
 import { extractError } from '@/services/api';
-
-const CATEGORY_ICON_MAP: Record<CarbonCategory, React.ElementType> = {
-  transport: Car,
-  energy:    Zap,
-  food:      Utensils,
-  shopping:  ShoppingBag,
-  waste:     Recycle,
-};
-
-const CATEGORY_STYLE_MAP: Record<CarbonCategory, string> = {
-  transport: 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/20',
-  energy:    'text-amber-500 bg-amber-50 dark:text-amber-400 dark:bg-amber-900/20',
-  food:      'text-green-600 bg-green-50 dark:text-green-400 dark:bg-green-900/20',
-  shopping:  'text-purple-600 bg-purple-50 dark:text-purple-400 dark:bg-purple-900/20',
-  waste:     'text-red-500 bg-red-50 dark:text-red-400 dark:bg-red-900/20',
-};
+import { CATEGORY_ICON_MAP, CATEGORY_STYLE_MAP } from '@/constants/carbon';
 
 const LogActivity: React.FC = () => {
   const queryClient = useQueryClient();
@@ -111,13 +96,13 @@ const LogActivity: React.FC = () => {
                       </span>
                       <button
                         onClick={() => deleteMutation.mutate(activity.id)}
+                        aria-label={`Delete ${activity.subcategory.replace(/_/g, ' ')} activity`}
                         className="p-1.5 rounded transition-all
                                    text-carbon-300 hover:text-red-500 hover:bg-red-50
-                                   sm:opacity-0 sm:group-hover:opacity-100
+                                   sm:opacity-0 sm:group-hover:opacity-100 focus:opacity-100
                                    dark:text-carbon-600 dark:hover:bg-red-900/30 dark:hover:text-red-400"
-                        title="Delete activity"
                       >
-                        <Trash2 className="h-3.5 w-3.5" />
+                        <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
                       </button>
                     </div>
                   </div>

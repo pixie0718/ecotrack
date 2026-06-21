@@ -1,5 +1,5 @@
-import { CarbonActivity } from '@prisma/client';
-import { carbonRepository } from '../repositories/carbon.repository';
+import { CarbonActivity, Prisma, UserProfile } from '@prisma/client';
+import { carbonRepository, PaginatedActivities } from '../repositories/carbon.repository';
 import { userRepository } from '../repositories/user.repository';
 import { calculateCO2, estimateAnnualFootprint, getCategoryBreakdown, toTreeEquivalent, GLOBAL_AVERAGES } from '../utils/carbon-calculator';
 import { AppError } from '../utils/AppError';
@@ -28,7 +28,7 @@ export class CarbonService {
       unit: input.unit,
       co2Kg,
       date: input.date ?? new Date(),
-      metadata: input.metadata as any,
+      metadata: input.metadata as Prisma.InputJsonValue,
     });
 
     // Async: recalculate monthly footprint
@@ -45,7 +45,7 @@ export class CarbonService {
     category?: string;
     page?: number;
     limit?: number;
-  }) {
+  }): Promise<PaginatedActivities> {
     return carbonRepository.findActivities({
       userId,
       startDate: filter.startDate ? new Date(filter.startDate) : undefined,
@@ -202,6 +202,10 @@ export class CarbonService {
         monthlyTrend,
       },
     };
+  }
+
+  async getProfile(userId: string): Promise<UserProfile | null> {
+    return userRepository.getProfile(userId);
   }
 
   async getChallenges() {

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Bot, X, Send, Sparkles, Loader2 } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { carbonService } from '@/services/carbon.service';
 import { formatCO2 } from '@/utils/formatters';
 import { REDUCE_TIPS, STALE_TIMES } from '@/constants/carbon';
@@ -79,6 +79,7 @@ function resolveReply(q: string, stats: DashboardStats | undefined): string {
 }
 
 export const DashboardChat: React.FC = () => {
+  const queryClient = useQueryClient();
   const { data: stats } = useQuery({
     queryKey: ['dashboard'],
     queryFn: carbonService.getDashboard,
@@ -122,7 +123,11 @@ export const DashboardChat: React.FC = () => {
     setMsgs(prev => [...prev, { from: 'user', text: 'Get AI Insights from Gemini 🤖' }]);
     setAiLoading(true);
     try {
-      const result = await carbonService.getInsights();
+      const result = await queryClient.fetchQuery({
+        queryKey: ['insights'],
+        queryFn: carbonService.getInsights,
+        staleTime: STALE_TIMES.insights,
+      });
       const ins    = result.insights;
       const tipsText = ins.personalizedTips
         .slice(0, 3)

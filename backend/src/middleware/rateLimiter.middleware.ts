@@ -1,7 +1,12 @@
 import rateLimit from 'express-rate-limit';
 import slowDown from 'express-slow-down';
+import { Request } from 'express';
 import { env } from '../config/environment';
 import { logger } from '../utils/logger';
+
+interface RequestWithSlowDown extends Request {
+  slowDown?: { limit: number };
+}
 
 // General API rate limiter
 export const apiRateLimiter = rateLimit({
@@ -27,11 +32,11 @@ export const apiRateLimiter = rateLimit({
 
 // Strict auth rate limiter (login, register, password reset)
 export const authRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
+  windowMs: 15 * 60 * 1000,
   max: env.AUTH_RATE_LIMIT_MAX,
   standardHeaders: 'draft-7',
   legacyHeaders: false,
-  skipSuccessfulRequests: true, // only count failed attempts
+  skipSuccessfulRequests: true,
   message: {
     success: false,
     message: 'Too many authentication attempts. Account temporarily locked.',
@@ -46,13 +51,13 @@ export const authRateLimiter = rateLimit({
   },
 });
 
-// AI insights rate limiter (Gemini API calls are expensive)
+// AI insights rate limiter (Gemini API calls are expensive) — keyed per user
 export const insightsRateLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
+  windowMs: 60 * 60 * 1000,
   max: 20,
   standardHeaders: 'draft-7',
   legacyHeaders: false,
-  keyGenerator: (req) => (req as any).user?.id ?? req.ip ?? 'unknown',
+  keyGenerator: (req) => req.user?.id ?? req.ip ?? 'unknown',
   message: {
     success: false,
     message: 'AI insights limit reached. Please try again in an hour.',
@@ -60,13 +65,13 @@ export const insightsRateLimiter = rateLimit({
   },
 });
 
-// Speed limiter - progressively slow down responses after threshold
+// Speed limiter — progressively slow down responses after threshold
 export const speedLimiter = slowDown({
   windowMs: 15 * 60 * 1000,
   delayAfter: 50,
   delayMs: (used, req) => {
-    const delayAfter = (req as any).slowDown?.limit ?? 50;
-    return (used - delayAfter) * 500;
+    const threshold = (req as RequestWithSlowDown).slowDown?.limit ?? 50;
+    return (used - threshold) * 500;
   },
   maxDelayMs: 5000,
 });

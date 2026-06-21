@@ -18,6 +18,10 @@ export interface AuthResult {
   tokens: AuthTokens;
 }
 
+/** Pre-hashed dummy value used for constant-time comparison on non-existent users. */
+let DUMMY_HASH = '$2a$12$invalidhashplaceholderXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
+bcrypt.hash('dummy-timing-constant', 12).then((h) => { DUMMY_HASH = h; }).catch(() => {});
+
 export class AuthService {
   async register(input: RegisterInput): Promise<AuthResult> {
     const { email, username, password, firstName, lastName } = input;
@@ -67,9 +71,7 @@ export class AuthService {
 
     const user = await userRepository.findByEmail(email);
 
-    // Always hash to prevent timing attacks even if user not found
-    const dummyHash = '$2a$12$dummy.hash.to.prevent.timing.attack.xxxxxxxxxx';
-    const passwordHash = user?.passwordHash ?? dummyHash;
+    const passwordHash = user?.passwordHash ?? DUMMY_HASH;
 
     const isPasswordValid = await bcrypt.compare(password, passwordHash);
 

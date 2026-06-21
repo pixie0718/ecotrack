@@ -54,16 +54,3 @@ export function sendSuccess<T>(
   res.status(statusCode).json(response);
 }
 
-export function sendError(
-  res: Response,
-  message: string,
-  statusCode = 500,
-  errors?: unknown
-): void {
-  const response: Record<string, unknown> = {
-    success: false,
-    message,
-    ...(errors ? { errors } : {}),
-  };
-  res.status(statusCode).json(response);
-}

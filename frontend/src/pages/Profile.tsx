@@ -1,6 +1,6 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { User, Save } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { Button } from '@/components/ui/Button';
@@ -11,22 +11,32 @@ import { useAuthStore } from '@/store/authStore';
 import { extractError } from '@/services/api';
 import type { UserProfile } from '@/types/carbon.types';
 
+const PROFILE_DEFAULTS: Partial<UserProfile> = {
+  dietType: 'omnivore', vehicleType: 'petrol', householdSize: 1,
+  renewableEnergyPct: 0, monthlyFlights: 0, weeklyCarKm: 0,
+  monthlyElectricityKwh: 0, monthlyGasM3: 0, targetReduction: 20,
+};
+
 const Profile: React.FC = () => {
   const user        = useAuthStore((s) => s.user);
   const queryClient = useQueryClient();
 
+  const { data: savedProfile, isLoading: profileLoading } = useQuery({
+    queryKey: ['profile'],
+    queryFn: carbonService.getProfile,
+    staleTime: 5 * 60 * 1000,
+  });
+
   const { register, handleSubmit } = useForm<Partial<UserProfile>>({
-    defaultValues: {
-      dietType: 'omnivore', vehicleType: 'petrol', householdSize: 1,
-      renewableEnergyPct: 0, monthlyFlights: 0, weeklyCarKm: 0,
-      monthlyElectricityKwh: 0, monthlyGasM3: 0, targetReduction: 20,
-    },
+    defaultValues: PROFILE_DEFAULTS,
+    values: savedProfile ?? undefined,
   });
 
   const mutation = useMutation({
     mutationFn: carbonService.updateProfile,
-    onSuccess: () => {
+    onSuccess: (updated) => {
       toast.success('Profile updated! Baseline recalculated 🌱');
+      queryClient.setQueryData(['profile'], updated);
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });
     },
     onError: (error) => toast.error(extractError(error)),
@@ -80,53 +90,61 @@ const Profile: React.FC = () => {
           </p>
         </CardHeader>
 
-        <form onSubmit={handleSubmit((d) => mutation.mutate(d))} className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <Select
-              label="Diet Type"
-              options={[
-                { value: 'vegan',       label: '🌱 Vegan' },
-                { value: 'vegetarian',  label: '🥦 Vegetarian' },
-                { value: 'pescatarian', label: '🐟 Pescatarian' },
-                { value: 'omnivore',    label: '🍽️ Omnivore' },
-                { value: 'heavy_meat',  label: '🥩 Heavy Meat Eater' },
-              ]}
-              {...register('dietType')}
-            />
-            <Select
-              label="Primary Vehicle"
-              options={[
-                { value: 'none',     label: '🚶 No car' },
-                { value: 'electric', label: '⚡ Electric' },
-                { value: 'hybrid',   label: '🔋 Hybrid' },
-                { value: 'petrol',   label: '⛽ Petrol' },
-                { value: 'diesel',   label: '🛢️ Diesel' },
-              ]}
-              {...register('vehicleType')}
-            />
+        {profileLoading ? (
+          <div className="space-y-3 animate-pulse">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-12 bg-carbon-100 dark:bg-carbon-800 rounded-lg" />
+            ))}
           </div>
+        ) : (
+          <form onSubmit={handleSubmit((d) => mutation.mutate(d))} className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Select
+                label="Diet Type"
+                options={[
+                  { value: 'vegan',       label: '🌱 Vegan' },
+                  { value: 'vegetarian',  label: '🥦 Vegetarian' },
+                  { value: 'pescatarian', label: '🐟 Pescatarian' },
+                  { value: 'omnivore',    label: '🍽️ Omnivore' },
+                  { value: 'heavy_meat',  label: '🥩 Heavy Meat Eater' },
+                ]}
+                {...register('dietType')}
+              />
+              <Select
+                label="Primary Vehicle"
+                options={[
+                  { value: 'none',     label: '🚶 No car' },
+                  { value: 'electric', label: '⚡ Electric' },
+                  { value: 'hybrid',   label: '🔋 Hybrid' },
+                  { value: 'petrol',   label: '⛽ Petrol' },
+                  { value: 'diesel',   label: '🛢️ Diesel' },
+                ]}
+                {...register('vehicleType')}
+              />
+            </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <Input label="Weekly Car Distance (km)" type="number" min="0" {...register('weeklyCarKm', { valueAsNumber: true })} />
-            <Input label="Monthly Flights" type="number" min="0" hint="Average flights per month" {...register('monthlyFlights', { valueAsNumber: true })} />
-          </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Input label="Weekly Car Distance (km)" type="number" min="0" {...register('weeklyCarKm', { valueAsNumber: true })} />
+              <Input label="Monthly Flights" type="number" min="0" hint="Average flights per month" {...register('monthlyFlights', { valueAsNumber: true })} />
+            </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <Input label="Monthly Electricity (kWh)" type="number" min="0" {...register('monthlyElectricityKwh', { valueAsNumber: true })} />
-            <Input label="Monthly Gas (m³)" type="number" min="0" {...register('monthlyGasM3', { valueAsNumber: true })} />
-          </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Input label="Monthly Electricity (kWh)" type="number" min="0" {...register('monthlyElectricityKwh', { valueAsNumber: true })} />
+              <Input label="Monthly Gas (m³)" type="number" min="0" {...register('monthlyGasM3', { valueAsNumber: true })} />
+            </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <Input label="Renewable Energy (%)" type="number" min="0" max="100" hint="% from renewables" {...register('renewableEnergyPct', { valueAsNumber: true })} />
-            <Input label="Household Size (people)" type="number" min="1" max="20" {...register('householdSize', { valueAsNumber: true })} />
-          </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <Input label="Renewable Energy (%)" type="number" min="0" max="100" hint="% from renewables" {...register('renewableEnergyPct', { valueAsNumber: true })} />
+              <Input label="Household Size (people)" type="number" min="1" max="20" {...register('householdSize', { valueAsNumber: true })} />
+            </div>
 
-          <Input label="Target Reduction (%)" type="number" min="1" max="100" hint="Your goal: % reduction from baseline" {...register('targetReduction', { valueAsNumber: true })} />
+            <Input label="Target Reduction (%)" type="number" min="1" max="100" hint="Your goal: % reduction from baseline" {...register('targetReduction', { valueAsNumber: true })} />
 
-          <Button type="submit" isLoading={mutation.isPending} leftIcon={<Save className="h-4 w-4" />}>
-            Save Profile
-          </Button>
-        </form>
+            <Button type="submit" isLoading={mutation.isPending} leftIcon={<Save className="h-4 w-4" />}>
+              Save Profile
+            </Button>
+          </form>
+        )}
       </Card>
     </div>
   );

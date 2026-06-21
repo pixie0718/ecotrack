@@ -414,7 +414,9 @@ const Landing: React.FC = () => (
                 </div>
                 <span className="text-sm font-semibold text-white/80">Monthly Footprint</span>
               </div>
-              <span className="text-xs text-white/30 bg-white/5 px-2 py-0.5 rounded">June 2026</span>
+              <span className="text-xs text-white/30 bg-white/5 px-2 py-0.5 rounded">
+                {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+              </span>
             </div>
 
             <div className="px-5 py-4">

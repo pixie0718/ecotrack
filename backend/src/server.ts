@@ -4,35 +4,37 @@ import { connectDatabase, disconnectDatabase } from './config/database';
 import { logger } from './utils/logger';
 import app from './app';
 
-const server = app.listen(env.PORT, async () => {
+async function startServer(): Promise<void> {
+  // Connect to the database BEFORE accepting any requests
   await connectDatabase();
-  logger.info(`Server started`, {
-    port: env.PORT,
-    env: env.NODE_ENV,
-    apiVersion: env.API_VERSION,
-  });
-});
 
-// Graceful shutdown
-const gracefulShutdown = async (signal: string) => {
-  logger.info(`Received ${signal}. Starting graceful shutdown...`);
-
-  server.close(async () => {
-    logger.info('HTTP server closed');
-    await disconnectDatabase();
-    logger.info('Graceful shutdown complete');
-    process.exit(0);
+  const server = app.listen(env.PORT, () => {
+    logger.info('Server started', {
+      port: env.PORT,
+      env: env.NODE_ENV,
+      apiVersion: env.API_VERSION,
+    });
   });
 
-  // Force shutdown after 30 seconds
-  setTimeout(() => {
-    logger.error('Forced shutdown after timeout');
-    process.exit(1);
-  }, 30000);
-};
+  const gracefulShutdown = async (signal: string): Promise<void> => {
+    logger.info(`Received ${signal}. Starting graceful shutdown...`);
 
-process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+    server.close(async () => {
+      logger.info('HTTP server closed');
+      await disconnectDatabase();
+      logger.info('Graceful shutdown complete');
+      process.exit(0);
+    });
+
+    setTimeout(() => {
+      logger.error('Forced shutdown after timeout');
+      process.exit(1);
+    }, 30_000);
+  };
+
+  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+  process.on('SIGINT',  () => gracefulShutdown('SIGINT'));
+}
 
 process.on('uncaughtException', (error) => {
   logger.error('Uncaught exception', { error });
@@ -44,4 +46,7 @@ process.on('unhandledRejection', (reason) => {
   process.exit(1);
 });
 
-export default server;
+startServer().catch((error) => {
+  logger.error('Failed to start server', { error });
+  process.exit(1);
+});

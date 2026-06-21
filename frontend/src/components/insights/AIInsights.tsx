@@ -4,6 +4,7 @@ import { Card, CardHeader, CardTitle } from '@/components/ui/Card';
 import { cn } from '@/utils/cn';
 import { getDifficultyColor, getPriorityColor } from '@/utils/formatters';
 import type { AIInsights as AIInsightsType } from '@/types/carbon.types';
+import { PARIS_TARGET_KG_MONTH } from '@/constants/carbon';
 
 interface AIInsightsPanelProps {
   insights: AIInsightsType;
@@ -11,8 +12,7 @@ interface AIInsightsPanelProps {
 }
 
 export const AIInsightsPanel: React.FC<AIInsightsPanelProps> = ({ insights, totalMonthlyKg }) => {
-  // Paris target is ~167 kg/month (2,000 kg/year ÷ 12)
-  const parisMonthly = 167;
+  const parisMonthly = PARIS_TARGET_KG_MONTH;
   const pctOfParis   = totalMonthlyKg > 0 ? Math.round((totalMonthlyKg / parisMonthly) * 100) : 0;
 
   return (

@@ -1,6 +1,15 @@
 // Carbon emission factors (kg CO2e per unit)
 // Sources: IPCC, EPA, GHG Protocol
 
+/** Average CO₂ absorbed by one mature tree per year — USDA Forest Service estimate */
+export const KG_CO2_PER_TREE_PER_YEAR = 21;
+
+/** Average single-trip flight distance in km for baseline footprint estimation */
+const AVG_FLIGHT_DISTANCE_KM = 800;
+
+/** Default annual CO₂ from shopping/consumer goods (kg) — Source: WRAP 2020 */
+const DEFAULT_ANNUAL_SHOPPING_KG_CO2 = 1800;
+
 export const EMISSION_FACTORS = {
   transport: {
     car_petrol_km: 0.192,          // kg CO2e/km
@@ -99,7 +108,7 @@ export function estimateAnnualFootprint(profile: ProfileData): number {
     ] ?? EMISSION_FACTORS.transport.car_petrol_km;
     total += profile.weeklyCarKm * 52 * factor;
   }
-  total += profile.monthlyFlights * 12 * 800 * EMISSION_FACTORS.transport.flight_medium_km;
+  total += profile.monthlyFlights * 12 * AVG_FLIGHT_DISTANCE_KM * EMISSION_FACTORS.transport.flight_medium_km;
 
   // Energy (adjusted for renewable energy percentage)
   const energyFactor = 1 - (profile.renewableEnergyPct / 100) * 0.8;
@@ -117,7 +126,7 @@ export function estimateAnnualFootprint(profile: ProfileData): number {
   total += foodFootprints[profile.dietType] ?? foodFootprints.omnivore;
 
   // Shopping (estimated average)
-  total += 1800;
+  total += DEFAULT_ANNUAL_SHOPPING_KG_CO2;
 
   // Per-person (shared household costs)
   const householdShared = (total * 0.3) / Math.max(profile.householdSize, 1);
@@ -127,8 +136,7 @@ export function estimateAnnualFootprint(profile: ProfileData): number {
 }
 
 export function toTreeEquivalent(co2Kg: number): number {
-  // Average tree absorbs ~21 kg CO2/year
-  return Math.round((co2Kg / 21) * 100) / 100;
+  return Math.round((co2Kg / KG_CO2_PER_TREE_PER_YEAR) * 100) / 100;
 }
 
 export function toKmDrivenEquivalent(co2Kg: number): number {

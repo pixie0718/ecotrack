@@ -23,6 +23,7 @@ router.get('/activities', carbonController.getActivities.bind(carbonController))
 router.delete('/activities/:id', carbonController.deleteActivity.bind(carbonController));
 
 // Profile / footprint settings
+router.get('/profile', carbonController.getProfile.bind(carbonController));
 router.put('/profile', validate(updateProfileSchema), carbonController.updateProfile.bind(carbonController));
 
 // AI Insights (rate limited - Gemini API calls)

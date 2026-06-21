@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/Button';
 import { Input, Select } from '@/components/ui/Input';
 import { Card, CardHeader, CardTitle } from '@/components/ui/Card';
 import { formatCO2 } from '@/utils/formatters';
+import { TREE_ABSORPTION_KG_YEAR } from '@/constants/carbon';
 
 const FACTORS: Record<string, Record<string, { factor: number; unit: string; label: string }>> = {
   Transport: {
@@ -52,7 +53,7 @@ const Calculator: React.FC = () => {
   const removeItem = (index: number) => setItems((prev) => prev.filter((_, i) => i !== index));
 
   const totalCO2       = items.reduce((sum, item) => sum + item.co2, 0);
-  const treeEquivalent = totalCO2 / 21;
+  const treeEquivalent = totalCO2 / TREE_ABSORPTION_KG_YEAR;
 
   const categoryOptions = Object.keys(FACTORS).map((k) => ({ value: k, label: k }));
   const activityOptions = Object.entries(FACTORS[category] ?? {}).map(([k, v]) => ({

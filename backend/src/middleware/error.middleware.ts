@@ -21,7 +21,6 @@ export function errorHandler(
 ): void {
   const requestId = req.headers['x-request-id'] as string;
 
-  // Log the error
   logger.error('Request error', {
     requestId,
     error: error.message,
@@ -31,7 +30,18 @@ export function errorHandler(
     ip: req.ip,
   });
 
-  // Handle known AppErrors
+  // ValidationError must be checked before AppError (it extends AppError)
+  if (error instanceof ValidationError) {
+    res.status(422).json({
+      success: false,
+      message: error.message,
+      code: error.code,
+      errors: error.fields,
+      requestId,
+    });
+    return;
+  }
+
   if (error instanceof AppError) {
     res.status(error.statusCode).json({
       success: false,
@@ -42,7 +52,6 @@ export function errorHandler(
     return;
   }
 
-  // Handle validation errors from Zod
   if (error instanceof ZodError) {
     const fields: Record<string, string[]> = {};
     for (const issue of error.issues) {
@@ -59,19 +68,6 @@ export function errorHandler(
     return;
   }
 
-  // Handle ValidationError
-  if (error instanceof ValidationError) {
-    res.status(422).json({
-      success: false,
-      message: error.message,
-      code: error.code,
-      errors: error.fields,
-      requestId,
-    });
-    return;
-  }
-
-  // Handle Prisma errors
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     handlePrismaError(error, res, requestId);
     return;
@@ -87,7 +83,6 @@ export function errorHandler(
     return;
   }
 
-  // Generic server error (don't leak details in production)
   res.status(500).json({
     success: false,
     message: env.NODE_ENV === 'production' ? 'Internal server error' : error.message,

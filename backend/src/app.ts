@@ -37,7 +37,18 @@ app.use(compressionMiddleware);
 app.use(sanitizeMiddleware);
 app.use(hppMiddleware);
 
-// Rate limiting
+// Health check registered BEFORE rate limiter so load-balancer pings don't consume quota
+app.get('/health', (_req, res) => {
+  res.json({
+    status: 'healthy',
+    service: 'carbon-footprint-api',
+    version: env.API_VERSION,
+    timestamp: new Date().toISOString(),
+    environment: env.NODE_ENV,
+  });
+});
+
+// Rate limiting (applied after health check)
 app.use(apiRateLimiter);
 app.use(speedLimiter);
 
@@ -50,17 +61,6 @@ app.use((req, _res, next) => {
     requestId: req.headers['x-request-id'],
   });
   next();
-});
-
-// Health check (no auth, no rate limit)
-app.get('/health', (_req, res) => {
-  res.json({
-    status: 'healthy',
-    service: 'carbon-footprint-api',
-    version: env.API_VERSION,
-    timestamp: new Date().toISOString(),
-    environment: env.NODE_ENV,
-  });
 });
 
 // API routes

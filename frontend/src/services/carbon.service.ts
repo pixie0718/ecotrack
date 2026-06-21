@@ -18,9 +18,23 @@ export interface LogActivityPayload {
   date?: string;
 }
 
+interface PaginationMeta {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
 interface PaginatedResponse<T> {
   data: T[];
-  meta: { page: number; limit: number; total: number; totalPages: number };
+  meta: PaginationMeta;
+}
+
+export interface DataSnapshot {
+  totalMonthlyKg: number;
+  categoryBreakdown: Record<string, number>;
+  topActivities: Array<{ subcategory: string; co2Kg: number }>;
+  monthlyTrend: Array<{ month: string; co2Kg: number }>;
 }
 
 export const carbonService = {
@@ -41,7 +55,7 @@ export const carbonService = {
     page?: number;
     limit?: number;
   }): Promise<PaginatedResponse<CarbonActivity>> {
-    const { data } = await api.get<{ data: CarbonActivity[]; meta: any }>('/carbon/activities', { params });
+    const { data } = await api.get<{ data: CarbonActivity[]; meta: PaginationMeta }>('/carbon/activities', { params });
     return { data: data.data, meta: data.meta };
   },
 
@@ -49,13 +63,18 @@ export const carbonService = {
     await api.delete(`/carbon/activities/${id}`);
   },
 
+  async getProfile(): Promise<UserProfile | null> {
+    const { data } = await api.get<{ data: UserProfile | null }>('/carbon/profile');
+    return data.data;
+  },
+
   async updateProfile(profile: Partial<UserProfile>): Promise<UserProfile> {
     const { data } = await api.put<{ data: UserProfile }>('/carbon/profile', profile);
     return data.data;
   },
 
-  async getInsights(): Promise<{ insights: AIInsights; dataSnapshot: any }> {
-    const { data } = await api.get<{ data: { insights: AIInsights; dataSnapshot: any } }>('/carbon/insights');
+  async getInsights(): Promise<{ insights: AIInsights; dataSnapshot: DataSnapshot }> {
+    const { data } = await api.get<{ data: { insights: AIInsights; dataSnapshot: DataSnapshot } }>('/carbon/insights');
     return data.data;
   },
 

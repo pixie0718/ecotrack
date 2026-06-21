@@ -1,5 +1,5 @@
 import React from 'react';
-import { Leaf, Zap, Trees, TrendingDown, Globe, Car, Utensils, ShoppingBag, Recycle, Activity, Flame } from 'lucide-react';
+import { Leaf, Zap, Trees, TrendingDown, Globe, Activity, Flame } from 'lucide-react';
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import { TrendChart, CategoryPieChart } from '@/components/carbon/FootprintChart';
 import { Card, CardHeader, CardTitle } from '@/components/ui/Card';
@@ -7,25 +7,9 @@ import { useAuthStore } from '@/store/authStore';
 import { formatCO2, formatRelativeDate } from '@/utils/formatters';
 import { CATEGORY_LABELS, type CarbonCategory } from '@/types/carbon.types';
 import { useDashboardStats, useStreak } from '@/hooks';
-import { DAY_MS } from '@/constants/carbon';
+import { DAY_MS, CATEGORY_ICON_MAP, CATEGORY_STYLE_MAP } from '@/constants/carbon';
 
 const DAY_LABELS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
-
-const CATEGORY_ICON_MAP: Record<CarbonCategory, React.ElementType> = {
-  transport: Car,
-  energy:    Zap,
-  food:      Utensils,
-  shopping:  ShoppingBag,
-  waste:     Recycle,
-};
-
-const CATEGORY_STYLE_MAP: Record<CarbonCategory, string> = {
-  transport: 'text-blue-600 bg-blue-50 dark:text-blue-400 dark:bg-blue-900/20',
-  energy:    'text-amber-500 bg-amber-50 dark:text-amber-400 dark:bg-amber-900/20',
-  food:      'text-green-600 bg-green-50 dark:text-green-400 dark:bg-green-900/20',
-  shopping:  'text-purple-600 bg-purple-50 dark:text-purple-400 dark:bg-purple-900/20',
-  waste:     'text-red-500 bg-red-50 dark:text-red-400 dark:bg-red-900/20',
-};
 
 const Dashboard: React.FC = () => {
   const user = useAuthStore((s) => s.user);
@@ -98,7 +82,7 @@ const Dashboard: React.FC = () => {
               const dayDate = new Date(Date.now() - (6 - i) * DAY_MS);
               const isToday = i === 6;
               return (
-                <div key={i} className="flex flex-col items-center gap-0.5">
+                <div key={`dot-${i}`} className="flex flex-col items-center gap-0.5">
                   <div className={`rounded-full transition-all duration-300 ${
                     active
                       ? isToday

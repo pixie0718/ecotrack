@@ -3,6 +3,15 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, PieChart, Pie, Cell, Legend,
 } from 'recharts';
+
+interface PieLabelProps {
+  cx: number;
+  cy: number;
+  midAngle: number;
+  innerRadius: number;
+  outerRadius: number;
+  percent: number;
+}
 import { Card, CardHeader, CardTitle } from '@/components/ui/Card';
 import { useThemeStore } from '@/store/themeStore';
 import { CATEGORY_COLORS, CATEGORY_LABELS, type CarbonCategory } from '@/types/carbon.types';
@@ -85,7 +94,7 @@ interface CategoryPieProps {
   data: Array<{ category: string; co2Kg: number; percentage: number }>;
 }
 
-const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {
+const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: PieLabelProps) => {
   if (percent < 0.05) return null;
   const RADIAN = Math.PI / 180;
   const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
@@ -143,7 +152,7 @@ export const CategoryPieChart: React.FC<CategoryPieProps> = ({ data }) => {
             labelLine={false}
             label={renderCustomLabel}
           >
-            {chartData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+            {chartData.map((entry) => <Cell key={entry.name} fill={entry.color} />)}
           </Pie>
           <Tooltip
             contentStyle={{

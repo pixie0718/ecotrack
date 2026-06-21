@@ -3,6 +3,7 @@ import cors from 'cors';
 import compression from 'compression';
 import mongoSanitize from 'express-mongo-sanitize';
 import hpp from 'hpp';
+import { v4 as uuidv4 } from 'uuid';
 import { Request, Response, NextFunction } from 'express';
 import { env } from '../config/environment';
 import { logger } from '../utils/logger';
@@ -86,16 +87,15 @@ export const hppMiddleware = hpp({
   whitelist: ['categories', 'tags'], // allow specific array params
 });
 
-// Request ID middleware for tracing
+/** Attaches a unique `X-Request-Id` header to every request for distributed tracing. */
 export function requestIdMiddleware(req: Request, res: Response, next: NextFunction): void {
-  const { v4: uuidv4 } = require('uuid');
   const requestId = (req.headers['x-request-id'] as string) || uuidv4();
   req.headers['x-request-id'] = requestId;
   res.setHeader('X-Request-Id', requestId);
   next();
 }
 
-// Security logging middleware
+/** Logs a warning when the request path or body matches known attack patterns. */
 export function securityLogger(req: Request, _res: Response, next: NextFunction): void {
   const suspiciousPatterns = [
     /(\.\.\/)|(\.\.\\)/,  // path traversal

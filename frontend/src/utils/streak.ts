@@ -26,10 +26,12 @@ export function calcStreak(activities: CarbonActivity[]): StreakResult {
   const loggedToday = activeDays.has(today);
 
   let streak = 0;
-  let check = loggedToday ? today : today - DAY_MS;
-  while (activeDays.has(check)) {
-    streak++;
-    check -= DAY_MS;
+  if (loggedToday) {
+    let check = today;
+    while (activeDays.has(check)) {
+      streak++;
+      check -= DAY_MS;
+    }
   }
 
   return { streak, dots, loggedToday };
