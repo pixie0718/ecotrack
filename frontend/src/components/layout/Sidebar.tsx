@@ -34,7 +34,7 @@ export const Sidebar: React.FC = () => {
   };
 
   return (
-    <aside className="fixed inset-y-0 left-0 w-64 flex flex-col z-40 transition-colors duration-200
+    <aside className="hidden lg:flex flex-col fixed inset-y-0 left-0 w-64 z-40 transition-colors duration-200
                       bg-white border-r border-carbon-200
                       dark:bg-carbon-900 dark:border-carbon-700">
 

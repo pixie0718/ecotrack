@@ -111,9 +111,10 @@ const LogActivity: React.FC = () => {
                       </span>
                       <button
                         onClick={() => deleteMutation.mutate(activity.id)}
-                        className="opacity-0 group-hover:opacity-100 p-1.5 rounded transition-all
-                                   text-carbon-400 hover:text-red-500 hover:bg-red-50
-                                   dark:hover:bg-red-900/30 dark:hover:text-red-400"
+                        className="p-1.5 rounded transition-all
+                                   text-carbon-300 hover:text-red-500 hover:bg-red-50
+                                   sm:opacity-0 sm:group-hover:opacity-100
+                                   dark:text-carbon-600 dark:hover:bg-red-900/30 dark:hover:text-red-400"
                         title="Delete activity"
                       >
                         <Trash2 className="h-3.5 w-3.5" />

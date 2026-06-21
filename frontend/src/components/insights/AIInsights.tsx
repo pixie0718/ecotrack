@@ -88,10 +88,10 @@ export const AIInsightsPanel: React.FC<AIInsightsPanelProps> = ({ insights, tota
         </CardHeader>
         <div className="space-y-3">
           {insights.personalizedTips.map((tip, i) => (
-            <div key={i} className={cn('p-4 rounded-lg border border-l-4', getPriorityColor(tip.priority))}>
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
+            <div key={i} className={cn('p-3 sm:p-4 rounded-lg border border-l-4', getPriorityColor(tip.priority))}>
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 sm:gap-4">
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-wrap items-center gap-1.5 mb-1.5">
                     <span className="text-xs font-medium capitalize px-2 py-0.5 rounded
                                      text-carbon-500 bg-carbon-100
                                      dark:text-carbon-400 dark:bg-carbon-700">
@@ -110,7 +110,7 @@ export const AIInsightsPanel: React.FC<AIInsightsPanelProps> = ({ insights, tota
                   <p className="text-sm text-carbon-700 dark:text-carbon-300">{tip.tip}</p>
                 </div>
                 {tip.potentialSavingKg > 0 && (
-                  <div className="shrink-0 text-right">
+                  <div className="flex sm:flex-col items-center sm:items-end gap-1 sm:gap-0 shrink-0">
                     <div className="text-sm font-bold text-green-600 dark:text-green-400">
                       -{tip.potentialSavingKg.toFixed(1)} kg
                     </div>

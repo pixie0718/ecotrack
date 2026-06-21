@@ -47,7 +47,7 @@ const Profile: React.FC = () => {
       {/* Account info */}
       <Card>
         <CardHeader><CardTitle>Account Information</CardTitle></CardHeader>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <p className="text-sm font-medium text-carbon-500 dark:text-carbon-400">Username</p>
             <p className="text-carbon-900 dark:text-white font-medium mt-1">@{user?.username}</p>
@@ -80,8 +80,8 @@ const Profile: React.FC = () => {
           </p>
         </CardHeader>
 
-        <form onSubmit={handleSubmit((d) => mutation.mutate(d))} className="space-y-5">
-          <div className="grid grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit((d) => mutation.mutate(d))} className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Select
               label="Diet Type"
               options={[
@@ -106,17 +106,17 @@ const Profile: React.FC = () => {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Input label="Weekly Car Distance (km)" type="number" min="0" {...register('weeklyCarKm', { valueAsNumber: true })} />
             <Input label="Monthly Flights" type="number" min="0" hint="Average flights per month" {...register('monthlyFlights', { valueAsNumber: true })} />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Input label="Monthly Electricity (kWh)" type="number" min="0" {...register('monthlyElectricityKwh', { valueAsNumber: true })} />
             <Input label="Monthly Gas (m³)" type="number" min="0" {...register('monthlyGasM3', { valueAsNumber: true })} />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Input label="Renewable Energy (%)" type="number" min="0" max="100" hint="% from renewables" {...register('renewableEnergyPct', { valueAsNumber: true })} />
             <Input label="Household Size (people)" type="number" min="1" max="20" {...register('householdSize', { valueAsNumber: true })} />
           </div>

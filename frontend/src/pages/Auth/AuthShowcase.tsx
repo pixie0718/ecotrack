@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Leaf, Zap, Trophy, TrendingDown, BarChart2, ShieldCheck } from 'lucide-react';
 
 const STATS = [
@@ -46,15 +47,15 @@ const AuthShowcase: React.FC = () => (
 
     {/* Top: Logo + tagline */}
     <div className="relative z-10">
-      <div className="flex items-center gap-3 mb-6">
+      <Link to="/" className="flex items-center gap-3 mb-6 w-fit group">
         <div className="auth-logo flex items-center justify-center w-11 h-11 rounded-xl">
           <Leaf className="h-6 w-6 text-white" />
         </div>
         <div>
-          <h1 className="text-xl font-bold text-white tracking-tight">EcoTrack</h1>
+          <h1 className="text-xl font-bold text-white tracking-tight group-hover:text-green-300 transition-colors">EcoTrack</h1>
           <p className="text-xs text-green-400/60">Carbon Footprint Platform</p>
         </div>
-      </div>
+      </Link>
 
       <h2 className="text-2xl font-bold text-white leading-snug mb-3">
         Track. Reduce.<br />

@@ -179,9 +179,11 @@ const Login: React.FC = () => {
 
           {/* Mobile-only logo */}
           <div className="lg:hidden text-center mb-8">
-            <div className="auth-logo inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-3">
-              <Leaf className="h-8 w-8 text-white" />
-            </div>
+            <Link to="/" className="inline-block">
+              <div className="auth-logo inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-3">
+                <Leaf className="h-8 w-8 text-white" />
+              </div>
+            </Link>
             <h1 className="text-2xl font-bold text-white">EcoTrack</h1>
             <p className="text-green-400/50 text-sm mt-1">Your carbon footprint tracker</p>
           </div>

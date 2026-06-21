@@ -111,6 +111,15 @@
   color: rgba(255, 255, 255, 0.22);
 }
 
+.auth-input-error {
+  border-color: rgba(239, 68, 68, 0.55) !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
+}
+.auth-input-error:focus {
+  border-color: rgba(239, 68, 68, 0.75) !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2), 0 0 20px rgba(239, 68, 68, 0.08);
+}
+
 /* Green gradient button */
 .auth-btn {
   background: linear-gradient(135deg, #16a34a 0%, #059669 50%, #16a34a 100%);

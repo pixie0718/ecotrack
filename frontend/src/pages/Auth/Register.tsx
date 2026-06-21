@@ -69,6 +69,7 @@ const Register: React.FC = () => {
 
   const { register, handleSubmit, watch, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema),
+    shouldFocusError: true,
   });
 
   const password = watch('password', '');
@@ -174,9 +175,11 @@ const Register: React.FC = () => {
 
           {/* Mobile-only logo */}
           <div className="lg:hidden text-center mb-6">
-            <div className="auth-logo inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-3">
-              <Leaf className="h-8 w-8 text-white" />
-            </div>
+            <Link to="/" className="inline-block">
+              <div className="auth-logo inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-3">
+                <Leaf className="h-8 w-8 text-white" />
+              </div>
+            </Link>
             <h1 className="text-2xl font-bold text-white">Join EcoTrack</h1>
             <p className="text-green-400/50 text-sm mt-1">Start your journey to net zero</p>
           </div>
@@ -219,7 +222,9 @@ const Register: React.FC = () => {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium mb-1" style={{ color: 'rgba(255,255,255,0.5)' }}>Last name</label>
+                  <label className="block text-xs font-medium mb-1" style={{ color: 'rgba(255,255,255,0.5)' }}>
+                    Last name <span style={{ color: 'rgba(255,255,255,0.28)' }}>(optional)</span>
+                  </label>
                   <input type="text" placeholder="Doe"
                          className="auth-input w-full rounded-xl px-3 py-2 text-sm"
                          {...register('lastName')} />
@@ -235,10 +240,11 @@ const Register: React.FC = () => {
                   <Mail className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5"
                         style={{ color: 'rgba(255,255,255,0.28)' }} />
                   <input type="email" autoComplete="email" placeholder="you@example.com"
-                         className="auth-input w-full rounded-xl pl-8 pr-3 py-2 text-sm"
+                         aria-invalid={!!errors.email} aria-describedby={errors.email ? 'err-email' : undefined}
+                         className={`auth-input w-full rounded-xl pl-8 pr-3 py-2 text-sm${errors.email ? ' auth-input-error' : ''}`}
                          {...register('email')} />
                 </div>
-                {errors.email && <p className="mt-1 text-xs text-red-400">{errors.email.message}</p>}
+                {errors.email && <p id="err-email" role="alert" className="mt-1 text-xs text-red-400">{errors.email.message}</p>}
               </div>
 
               {/* Username */}
@@ -250,10 +256,11 @@ const Register: React.FC = () => {
                   <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs font-semibold"
                         style={{ color: 'rgba(255,255,255,0.3)' }}>@</span>
                   <input type="text" placeholder="eco_warrior"
-                         className="auth-input w-full rounded-xl pl-7 pr-3 py-2 text-sm"
+                         aria-invalid={!!errors.username} aria-describedby={errors.username ? 'err-username' : undefined}
+                         className={`auth-input w-full rounded-xl pl-7 pr-3 py-2 text-sm${errors.username ? ' auth-input-error' : ''}`}
                          {...register('username')} />
                 </div>
-                {errors.username && <p className="mt-1 text-xs text-red-400">{errors.username.message}</p>}
+                {errors.username && <p id="err-username" role="alert" className="mt-1 text-xs text-red-400">{errors.username.message}</p>}
               </div>
 
               {/* Password */}
@@ -266,7 +273,8 @@ const Register: React.FC = () => {
                         style={{ color: 'rgba(255,255,255,0.28)' }} />
                   <input type={showPassword ? 'text' : 'password'} autoComplete="new-password"
                          placeholder="Create a strong password"
-                         className="auth-input w-full rounded-xl pl-8 pr-9 py-2 text-sm"
+                         aria-invalid={!!errors.password} aria-describedby={errors.password ? 'err-password' : undefined}
+                         className={`auth-input w-full rounded-xl pl-8 pr-9 py-2 text-sm${errors.password ? ' auth-input-error' : ''}`}
                          {...register('password')} />
                   <button type="button" onClick={() => setShowPassword((v) => !v)}
                           className="absolute right-2.5 top-1/2 -translate-y-1/2 transition-colors"
@@ -275,7 +283,7 @@ const Register: React.FC = () => {
                     {showPassword ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
                   </button>
                 </div>
-                {errors.password && <p className="mt-1 text-xs text-red-400">{errors.password.message}</p>}
+                {errors.password && <p id="err-password" role="alert" className="mt-1 text-xs text-red-400">{errors.password.message}</p>}
 
                 {/* Strength meter */}
                 {password && (
@@ -311,10 +319,11 @@ const Register: React.FC = () => {
                   <Lock className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5"
                         style={{ color: 'rgba(255,255,255,0.28)' }} />
                   <input type="password" autoComplete="new-password" placeholder="Repeat your password"
-                         className="auth-input w-full rounded-xl pl-8 pr-3 py-2 text-sm"
+                         aria-invalid={!!errors.confirmPassword} aria-describedby={errors.confirmPassword ? 'err-confirm' : undefined}
+                         className={`auth-input w-full rounded-xl pl-8 pr-3 py-2 text-sm${errors.confirmPassword ? ' auth-input-error' : ''}`}
                          {...register('confirmPassword')} />
                 </div>
-                {errors.confirmPassword && <p className="mt-1 text-xs text-red-400">{errors.confirmPassword.message}</p>}
+                {errors.confirmPassword && <p id="err-confirm" role="alert" className="mt-1 text-xs text-red-400">{errors.confirmPassword.message}</p>}
               </div>
 
               <button type="submit" disabled={isLoading}

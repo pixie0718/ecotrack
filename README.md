@@ -10,6 +10,14 @@
 [![Security](https://img.shields.io/badge/Security-10_Layers-green)](./backend/src/middleware/)
 [![Tests](https://img.shields.io/badge/Tests-30_passing-brightgreen)](./backend/tests/)
 
+### 🚀 Live Demo
+
+| | URL |
+|---|---|
+| 🌐 **Frontend** | https://ecotrack-hope07.vercel.app |
+| ⚙️ **Backend API** | https://ecotrack-production-b8c0.up.railway.app |
+| ❤️ **Health Check** | https://ecotrack-production-b8c0.up.railway.app/health |
+
 ---
 
 ## 📌 Overview
@@ -337,12 +345,13 @@ CORS_ORIGINS=https://yourdomain.com
 BCRYPT_SALT_ROUNDS=12
 ```
 
-### Deploy to Cloud
+### Live Deployment
 
-| Layer | Platform | Notes |
+| Layer | Platform | URL |
 |---|---|---|
-| Frontend | **Vercel** | Auto-deploy from GitHub `main` branch |
-| Backend + DB | **Railway** | PostgreSQL + Node.js service |
+| Frontend | **Vercel** | https://ecotrack-hope07.vercel.app |
+| Backend API | **Railway** | https://ecotrack-production-b8c0.up.railway.app |
+| Database | **Railway PostgreSQL** | Internal (not public) |
 
 ---
 

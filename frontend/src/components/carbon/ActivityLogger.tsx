@@ -87,18 +87,19 @@ export const ActivityLogger: React.FC = () => {
           <p className="block text-sm font-medium mb-2 text-carbon-700 dark:text-carbon-300">
             Category <span className="text-red-500">*</span>
           </p>
-          <div className="grid grid-cols-5 gap-2">
+          <div className="grid grid-cols-5 gap-1.5">
             {CATEGORY_OPTIONS.map(({ value, label, Icon, activeColor, iconColor }) => {
               const isActive = selectedCategory === value;
               return (
                 <button
                   key={value}
                   type="button"
+                  title={label}
                   onClick={() => {
                     setValue('category', value, { shouldValidate: true });
                     setValue('subcategory', '');
                   }}
-                  className={`flex flex-col items-center gap-1.5 py-3 px-1 rounded-xl border-2 transition-all duration-150
+                  className={`flex flex-col items-center gap-1 py-2.5 sm:py-3 px-1 rounded-xl border-2 transition-all duration-150
                     ${isActive
                       ? activeColor
                       : 'border-carbon-200 dark:border-carbon-700 hover:border-carbon-300 dark:hover:border-carbon-600 bg-transparent'
@@ -108,7 +109,7 @@ export const ActivityLogger: React.FC = () => {
                     className={`h-5 w-5 transition-colors ${isActive ? iconColor : 'text-carbon-400 dark:text-carbon-500'}`}
                     strokeWidth={1.5}
                   />
-                  <span className={`text-xs font-medium leading-none transition-colors
+                  <span className={`hidden sm:block text-xs font-medium leading-none transition-colors
                     ${isActive ? 'text-carbon-800 dark:text-carbon-100' : 'text-carbon-400 dark:text-carbon-500'}`}>
                     {label}
                   </span>
@@ -122,7 +123,7 @@ export const ActivityLogger: React.FC = () => {
         </div>
 
         {/* Activity dropdown + quantity */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Select
             label="Activity"
             options={[
@@ -142,7 +143,7 @@ export const ActivityLogger: React.FC = () => {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Input
             label="Description (optional)"
             placeholder="e.g. Drive to office"

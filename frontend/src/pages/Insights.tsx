@@ -15,13 +15,13 @@ const Insights: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-carbon-900 dark:text-white flex items-center gap-2">
             <Sparkles className="h-6 w-6 text-purple-500" />
             AI Insights
           </h1>
-          <p className="text-carbon-500 dark:text-carbon-400 mt-1">
+          <p className="text-carbon-500 dark:text-carbon-400 mt-1 text-sm">
             Powered by Google Gemini — personalized recommendations for your footprint
           </p>
         </div>
@@ -30,6 +30,7 @@ const Insights: React.FC = () => {
           onClick={() => refetch()}
           isLoading={isFetching}
           leftIcon={<RefreshCw className="h-4 w-4" />}
+          className="self-start sm:self-auto shrink-0"
         >
           Refresh
         </Button>
