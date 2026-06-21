@@ -1,43 +1,15 @@
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
 import { Leaf, Zap, Trees, TrendingDown, Globe, Car, Utensils, ShoppingBag, Recycle, Activity, Flame } from 'lucide-react';
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import { TrendChart, CategoryPieChart } from '@/components/carbon/FootprintChart';
 import { Card, CardHeader, CardTitle } from '@/components/ui/Card';
-import { carbonService } from '@/services/carbon.service';
 import { useAuthStore } from '@/store/authStore';
 import { formatCO2, formatRelativeDate } from '@/utils/formatters';
-import { CATEGORY_LABELS, type CarbonCategory, type CarbonActivity } from '@/types/carbon.types';
+import { CATEGORY_LABELS, type CarbonCategory } from '@/types/carbon.types';
+import { useDashboardStats, useStreak } from '@/hooks';
+import { DAY_MS } from '@/constants/carbon';
 
 const DAY_LABELS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
-
-function calcStreak(activities: CarbonActivity[]): { streak: number; dots: boolean[]; loggedToday: boolean } {
-  const DAY_MS = 86400000;
-  const now = new Date();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-
-  const activeDays = new Set(
-    activities.map(a => {
-      const d = new Date(a.date);
-      return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
-    })
-  );
-
-  const dots = Array.from({ length: 7 }, (_, i) =>
-    activeDays.has(today - (6 - i) * DAY_MS)
-  );
-
-  const loggedToday = activeDays.has(today);
-
-  let streak = 0;
-  let check = loggedToday ? today : today - DAY_MS;
-  while (activeDays.has(check)) {
-    streak++;
-    check -= DAY_MS;
-  }
-
-  return { streak, dots, loggedToday };
-}
 
 const CATEGORY_ICON_MAP: Record<CarbonCategory, React.ElementType> = {
   transport: Car,
@@ -57,19 +29,8 @@ const CATEGORY_STYLE_MAP: Record<CarbonCategory, string> = {
 
 const Dashboard: React.FC = () => {
   const user = useAuthStore((s) => s.user);
-
-  const { data: stats, isLoading } = useQuery({
-    queryKey: ['dashboard'],
-    queryFn: carbonService.getDashboard,
-    staleTime: 5 * 60 * 1000,
-  });
-
-  const sevenDaysAgo = new Date(Date.now() - 6 * 86400000).toISOString().split('T')[0];
-  const { data: streakActivities } = useQuery({
-    queryKey: ['streak-dates', sevenDaysAgo],
-    queryFn: () => carbonService.getActivities({ startDate: sevenDaysAgo, limit: 100 }).then(r => r.data),
-    staleTime: 5 * 60 * 1000,
-  });
+  const { stats, isLoading } = useDashboardStats();
+  const streakData = useStreak();
 
   if (isLoading) {
     return (
@@ -104,10 +65,7 @@ const Dashboard: React.FC = () => {
   const parisMonthly = stats.globalComparison.paris_target;
   const myMonthly    = stats.thisMonth.co2Kg;
 
-  const streakData = streakActivities ? calcStreak(streakActivities) : null;
-
   return (
-    <>
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -119,45 +77,45 @@ const Dashboard: React.FC = () => {
         </div>
 
         {/* Streak banner */}
-        {streakData && (
-          <div className="flex items-center gap-3 px-4 py-2.5 rounded-2xl border shrink-0
-                          bg-amber-50 border-amber-200 dark:bg-amber-900/15 dark:border-amber-700/40">
-            <div className="flex items-center gap-1.5">
-              <Flame className={`h-5 w-5 ${streakData.streak > 0 ? 'text-amber-500' : 'text-carbon-300 dark:text-carbon-600'}`}
-                     aria-hidden="true" />
-              <div>
-                <p className={`text-sm font-bold leading-none ${streakData.streak > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-carbon-400 dark:text-carbon-500'}`}>
-                  {streakData.streak > 0 ? `Day ${streakData.streak}` : 'No streak'}
-                </p>
-                <p className="text-[10px] text-carbon-400 dark:text-carbon-500 mt-0.5 leading-none">
-                  {streakData.loggedToday ? 'Logged today ✓' : 'Log today to continue'}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-end gap-1" aria-label="Last 7 days activity">
-              {streakData.dots.map((active, i) => {
-                const dayDate = new Date(Date.now() - (6 - i) * 86400000);
-                const isToday = i === 6;
-                return (
-                  <div key={i} className="flex flex-col items-center gap-0.5">
-                    <div className={`rounded-full transition-all duration-300 ${
-                      active
-                        ? isToday
-                          ? 'w-3 h-3 bg-amber-500 ring-2 ring-amber-300 dark:ring-amber-600'
-                          : 'w-2.5 h-2.5 bg-amber-400 dark:bg-amber-500'
-                        : isToday
-                          ? 'w-3 h-3 bg-carbon-200 dark:bg-carbon-700 ring-2 ring-carbon-300 dark:ring-carbon-600'
-                          : 'w-2.5 h-2.5 bg-carbon-200 dark:bg-carbon-700'
-                    }`} />
-                    <span className="text-[9px] text-carbon-400 dark:text-carbon-500">
-                      {DAY_LABELS[dayDate.getDay()]}
-                    </span>
-                  </div>
-                );
-              })}
+        <div className="flex items-center gap-3 px-4 py-2.5 rounded-2xl border shrink-0
+                        bg-amber-50 border-amber-200 dark:bg-amber-900/15 dark:border-amber-700/40">
+          <div className="flex items-center gap-1.5">
+            <Flame
+              className={`h-5 w-5 ${streakData.streak > 0 ? 'text-amber-500' : 'text-carbon-300 dark:text-carbon-600'}`}
+              aria-hidden="true"
+            />
+            <div>
+              <p className={`text-sm font-bold leading-none ${streakData.streak > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-carbon-400 dark:text-carbon-500'}`}>
+                {streakData.streak > 0 ? `Day ${streakData.streak}` : 'No streak'}
+              </p>
+              <p className="text-[10px] text-carbon-400 dark:text-carbon-500 mt-0.5 leading-none">
+                {streakData.loggedToday ? 'Logged today ✓' : 'Log today to continue'}
+              </p>
             </div>
           </div>
-        )}
+          <div className="flex items-end gap-1" aria-label="Last 7 days activity">
+            {streakData.dots.map((active, i) => {
+              const dayDate = new Date(Date.now() - (6 - i) * DAY_MS);
+              const isToday = i === 6;
+              return (
+                <div key={i} className="flex flex-col items-center gap-0.5">
+                  <div className={`rounded-full transition-all duration-300 ${
+                    active
+                      ? isToday
+                        ? 'w-3 h-3 bg-amber-500 ring-2 ring-amber-300 dark:ring-amber-600'
+                        : 'w-2.5 h-2.5 bg-amber-400 dark:bg-amber-500'
+                      : isToday
+                        ? 'w-3 h-3 bg-carbon-200 dark:bg-carbon-700 ring-2 ring-carbon-300 dark:ring-carbon-600'
+                        : 'w-2.5 h-2.5 bg-carbon-200 dark:bg-carbon-700'
+                  }`} />
+                  <span className="text-[9px] text-carbon-400 dark:text-carbon-500">
+                    {DAY_LABELS[dayDate.getDay()]}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
       {/* Stats Grid */}
@@ -351,7 +309,6 @@ const Dashboard: React.FC = () => {
         </Card>
       </div>
     </div>
-    </>
   );
 };
 
