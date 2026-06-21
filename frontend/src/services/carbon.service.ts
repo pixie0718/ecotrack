@@ -41,7 +41,7 @@ export const carbonService = {
     page?: number;
     limit?: number;
   }): Promise<PaginatedResponse<CarbonActivity>> {
-    const { data, headers } = await api.get<{ data: CarbonActivity[]; meta: any }>('/carbon/activities', { params });
+    const { data } = await api.get<{ data: CarbonActivity[]; meta: any }>('/carbon/activities', { params });
     return { data: data.data, meta: data.meta };
   },
 

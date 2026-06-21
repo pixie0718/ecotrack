@@ -101,7 +101,7 @@ export class GeminiService {
     try {
       const result = await this.model.generateContent(prompt);
       const text = result.response.text();
-      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      const jsonMatch = text.match(/\{[\s\S]*?\}(?=[^}]*$)/) ?? text.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         return JSON.parse(jsonMatch[0]);
       }
@@ -167,7 +167,7 @@ Provide exactly 5 personalizedTips. Be specific, practical, and encouraging.`;
 
   private parseInsightsResponse(text: string, data: UserCarbonData): AIInsights {
     try {
-      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      const jsonMatch = text.match(/\{[\s\S]*?\}(?=[^}]*$)/) ?? text.match(/\{[\s\S]*\}/);
       if (!jsonMatch) throw new Error('No JSON found');
 
       const parsed = JSON.parse(jsonMatch[0]);

@@ -91,6 +91,14 @@ api.interceptors.response.use(
   }
 );
 
+export function isServerSideError(error: unknown): boolean {
+  if (axios.isAxiosError(error)) {
+    if (!error.response) return true;      // network error / server unreachable
+    return error.response.status >= 500;   // 5xx = server fault, not user's
+  }
+  return false;
+}
+
 export function extractError(error: unknown): string {
   if (axios.isAxiosError(error)) {
     const data = error.response?.data;

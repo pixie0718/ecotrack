@@ -7,6 +7,7 @@ import { useAuthStore } from '@/store/authStore';
 import { Leaf } from 'lucide-react';
 
 // Lazy load pages for better performance
+const Landing = lazy(() => import('@/pages/Landing'));
 const Login = lazy(() => import('@/pages/Auth/Login'));
 const Register = lazy(() => import('@/pages/Auth/Register'));
 const Dashboard = lazy(() => import('@/pages/Dashboard'));
@@ -30,7 +31,7 @@ const queryClient = new QueryClient({
 });
 
 const PageLoader: React.FC = () => (
-  <div className="min-h-screen flex items-center justify-center bg-carbon-50">
+  <div className="min-h-screen flex items-center justify-center bg-carbon-50 dark:bg-carbon-950">
     <div className="text-center">
       <Leaf className="h-12 w-12 text-green-500 mx-auto animate-bounce" />
       <p className="text-carbon-500 mt-3 text-sm">Loading...</p>
@@ -88,9 +89,9 @@ const App: React.FC = () => {
               <Route path="/profile" element={<Profile />} />
             </Route>
 
-            {/* Default redirect */}
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            {/* Landing page — visible to everyone */}
+            <Route path="/" element={<Landing />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>
       </BrowserRouter>

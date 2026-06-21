@@ -4,6 +4,7 @@ import { userRepository } from '../repositories/user.repository';
 import { calculateCO2, estimateAnnualFootprint, getCategoryBreakdown, toTreeEquivalent, GLOBAL_AVERAGES } from '../utils/carbon-calculator';
 import { AppError } from '../utils/AppError';
 import { geminiService } from './gemini.service';
+import { logger } from '../utils/logger';
 import type { LogActivityInput, UpdateProfileInput } from '../validators/carbon.validators';
 
 export class CarbonService {
@@ -19,7 +20,7 @@ export class CarbonService {
     });
 
     const activity = await carbonRepository.createActivity({
-      userId,
+      user: { connect: { id: userId } },
       category: input.category,
       subcategory: input.subcategory,
       description: input.description,
@@ -28,11 +29,12 @@ export class CarbonService {
       co2Kg,
       date: input.date ?? new Date(),
       metadata: input.metadata as any,
-      user: { connect: { id: userId } },
     });
 
     // Async: recalculate monthly footprint
-    this.recalculateMonthlyFootprint(userId, activity.date).catch(console.error);
+    this.recalculateMonthlyFootprint(userId, activity.date).catch((e) =>
+      logger.error('Monthly footprint recalculation failed', { error: e, userId })
+    );
 
     return { ...activity, treeEquivalent: toTreeEquivalent(co2Kg) };
   }
