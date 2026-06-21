@@ -145,7 +145,7 @@ export class CarbonRepository {
     });
   }
 
-  async getChallenges(status?: string) {
+  async getChallenges(_status?: string) {
     return prisma.challenge.findMany({
       where: { isActive: true },
       orderBy: { co2Savings: 'desc' },

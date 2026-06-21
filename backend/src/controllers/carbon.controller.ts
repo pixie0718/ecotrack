@@ -38,7 +38,7 @@ export class CarbonController {
   async deleteActivity(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const userId = (req as any).user.id;
-      const { id } = req.params;
+      const { id } = req.params as Record<string, string>;
       await carbonService.deleteActivity(userId, id);
       sendSuccess(res, null, 200, 'Activity deleted');
     } catch (error) {
@@ -76,7 +76,7 @@ export class CarbonController {
     }
   }
 
-  async getChallenges(req: Request, res: Response, next: NextFunction): Promise<void> {
+  async getChallenges(_req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const challenges = await carbonService.getChallenges();
       sendSuccess(res, challenges);
@@ -88,7 +88,7 @@ export class CarbonController {
   async joinChallenge(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const userId = (req as any).user.id;
-      const { challengeId } = req.params;
+      const { challengeId } = req.params as Record<string, string>;
       const result = await carbonService.joinChallenge(userId, challengeId);
       sendSuccess(res, result, 201, 'Joined challenge');
     } catch (error) {

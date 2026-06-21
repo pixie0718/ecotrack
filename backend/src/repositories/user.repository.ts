@@ -46,7 +46,7 @@ export class UserRepository {
   ): Promise<UserProfile> {
     return prisma.userProfile.upsert({
       where: { userId },
-      create: { userId, ...data as Prisma.UserProfileCreateInput },
+      create: { ...(data as Prisma.UserProfileUncheckedCreateInput), userId },
       update: data,
     });
   }

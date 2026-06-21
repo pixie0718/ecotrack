@@ -1,16 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
-import { z, ZodSchema } from 'zod';
+import { ZodSchema } from 'zod';
 
-type ValidationTarget = 'body' | 'query' | 'params';
-
-interface RequestSchemaShape {
-  body?: ZodSchema;
-  query?: ZodSchema;
-  params?: ZodSchema;
-}
-
-export function validate(schema: ZodSchema<RequestSchemaShape>) {
-  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export function validate(schema: ZodSchema<any>) {
+  return async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
     try {
       const validated = await schema.parseAsync({
         body: req.body,

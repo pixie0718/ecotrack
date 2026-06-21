@@ -63,7 +63,7 @@ export function sendError(
   const response: Record<string, unknown> = {
     success: false,
     message,
-    ...(errors && { errors }),
+    ...(errors ? { errors } : {}),
   };
   res.status(statusCode).json(response);
 }
